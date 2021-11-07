@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
@@ -110,37 +110,76 @@ class Player(Base):
 
 class Point(Base):
     __tablename__ = "point"
-    __table_args__ = (ForeignKeyConstraint(["game_id"], ["game.id"]),)
+    __table_args__ = (
+        ForeignKeyConstraint(["game_id"], ["game.id"]),
+        ForeignKeyConstraint(["receiving_team_id"], ["team.id"]),
+        ForeignKeyConstraint(["scoring_team_id"], ["team.id"]),
+    )
 
     id = Column(String(16), primary_key=True, default=uuid16())
     quarter = Column(Integer)
     start_time = Column(Integer)
     end_time = Column(Integer)
+    receiving_team_id = Column(String(16), nullable=False)
+    scoring_team_id = Column(String(16))
     game_id = Column(String(16), nullable=False)
+    sequence = Column(Integer, nullable=False)
 
     events = relationship("Event", back_populates="point")
+
+    def __init__(
+        self,
+        id: str,
+        quarter: int,
+        start_time: int,
+        end_time: int,
+        game_id: str,
+        sequence: int,
+        events: Optional[List] = [],
+    ):
+        self.id = id
+        self.quarter = quarter
+        self.start_time = start_time
+        self.end_time = end_time
+        self.game_id = game_id
+        self.sequence = sequence
+        self.events = events
 
 
 class Event(Base):
     __tablename__ = "event"
     __table_args__ = (
-        ForeignKeyConstraint(["thrower_player_id"], ["player.id"]),
-        ForeignKeyConstraint(["thrower_receiver_id"], ["player.id"]),
+        ForeignKeyConstraint(["player_id"], ["player.id"]),
         ForeignKeyConstraint(["point_id"], ["point.id"]),
     )
 
     id = Column(String(16), primary_key=True, default=uuid16())
     point_id = Column(String(16), ForeignKey("point.id"), nullable=False)
-    received_at_x = Column(Float)
-    received_at_y = Column(Float)
-    thrower_player_id = Column(String(16))
-    thrower_receiver_id = Column(String(16))
-    pass_type = Column(String(32))  # TODO add enums here
-    outcome = Column(String(32))  # TODO add enums here
+    coordinate_x = Column(Float)
+    coordinate_y = Column(Float)
+    player_id = Column(String(16))
+    event_type = Column(String(32))  # TODO add enums here
+    sequence = Column(Integer, nullable=False)
 
-    point = relationship(
-        "Point", back_populates="events"
-    )  # TODO -- is this the right structure for uploading points and events?
+    point = relationship("Point", back_populates="events")
+
+    def __init__(
+        self,
+        id: str,
+        point_id: str,
+        coordinate_x: float,
+        coordinate_y: float,
+        player_id: str,
+        event_type: str,
+        sequence: int,
+    ):
+        self.id = id
+        self.point_id = point_id
+        self.coordinate_x = coordinate_x
+        self.coordinate_y = coordinate_y
+        self.player_id = player_id
+        self.event_type = event_type
+        self.sequence = sequence
 
 
 class OnRoster(Base):
@@ -180,3 +219,11 @@ class PlayedPoint(Base):
 
     player_id = Column(String(16), nullable=False, primary_key=True)
     point_id = Column(String(16), nullable=False, primary_key=True)
+    substitution = Column(Boolean, default=False)
+
+    def __init__(
+        self, player_id: str, point_id: str, substitution: Optional[bool] = False
+    ):
+        self.player_id = player_id
+        self.point_id = point_id
+        self.substitution = substitution
