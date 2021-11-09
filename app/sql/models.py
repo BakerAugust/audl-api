@@ -68,6 +68,7 @@ class Game(Base):
 
     id = Column(String(16), primary_key=True, default=uuid16())
     audl_id = Column(Integer)
+    ext_game_id = Column(String(18), nullable=False)
     home_roster_id = Column(String(16), nullable=False)
     away_roster_id = Column(String(16), nullable=False)
     home_score = Column(Integer)
@@ -81,6 +82,7 @@ class Game(Base):
     def __init__(
         self,
         audl_id: str,
+        ext_game_id: str,
         home_roster_id: str,
         away_roster_id: str,
         home_score: int,
@@ -92,6 +94,7 @@ class Game(Base):
     ):
         self.id = id
         self.audl_id = audl_id
+        self.ext_game_id = ext_game_id
         self.home_roster_id = home_roster_id
         self.away_roster_id = away_roster_id
         self.home_score = home_score
@@ -167,7 +170,7 @@ class OnRoster(Base):
     roster_id = Column(String(16), nullable=False, primary_key=True)
     player_id = Column(String(16), nullable=False, primary_key=True)
     audl_id = Column(Integer, nullable=False)
-    jersey_number = Column(Integer)
+    jersey_number = Column(Integer, nullable=True, default=None)
     active = Column(Boolean)
 
     def __init__(

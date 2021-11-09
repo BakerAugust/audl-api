@@ -57,13 +57,13 @@ def parse_roster(engine: Engine, roster_list: List[dict], team_id: str) -> str:
                     "last_name": rostered_player["player"]["last_name"],
                 }
             )
-
+        jersey_number = rostered_player["jersey_number"]
         on_roster_list.append(
             {
                 "roster_id": roster_id,
                 "player_id": player_id,
                 "audl_id": rostered_player["id"],
-                "jersey_number": rostered_player["jersey_number"],
+                "jersey_number": jersey_number if jersey_number else None,
                 "active": rostered_player["active"],
             }
         )
@@ -104,21 +104,6 @@ def parse_team(engine: Engine, team_dict: dict) -> str:
     return team_id
 
 
-def parse_line_event(event: dict, point_id: str, roster_lookup: dict) -> List[dict]:
-    """
-    Handler for events involving lines and substitutions.
-    """
-    if event["t"] in [1, 2]:
-        return [
-            {"player_id": roster_lookup[x], "point_id": point_id} for x in event["l"]
-        ]
-    elif EVENT_TYPES[event["t"]] == "Substitutions":
-        return [
-            {"player_id": roster_lookup[x], "point_id": point_id, "substitution": True}
-            for x in event["l"]
-        ]
-
-
 def parse_event(
     event: dict, game_id: str, team_id: str, roster_lookup: dict, event_sequence: int
 ) -> Event:
@@ -140,7 +125,7 @@ def parse_event(
     return e
 
 
-def parse_game(engine: Engine, response: Response) -> None:
+def parse_load_game(engine: Engine, response: Response) -> None:
     """ """
     ## TODO check if the game has already been loaded
 
@@ -167,6 +152,7 @@ def parse_game(engine: Engine, response: Response) -> None:
             gamejson["game"]["start_timestamp"].replace("Z", "")
         ),
         start_timezone=gamejson["game"]["start_timezone"],
+        ext_game_id=gamejson["game"]["ext_game_id"],
     )
 
     # Build a roster lookup for audl_rostered_player_id --> player.id
