@@ -5,7 +5,7 @@ One-off script to create all the tables in the database
 from sqlalchemy import create_engine
 import os
 from dotenv import load_dotenv
-from app.sql.models import Base, Event, Point
+from app.sql.models import Base
 from urllib.parse import quote_plus
 
 
@@ -16,7 +16,5 @@ if __name__ == "__main__":
     pw = quote_plus(os.getenv("MYSQL_ADMIN_PW"))
     db = os.getenv("MYSQL_DATABASE")
     engine = create_engine(f"mysql+pymysql://{user}:{pw}@{host}/audl", echo=True)
-    Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
 
-    # event_1 = Event()
+    Base.metadata.create_all(engine)
