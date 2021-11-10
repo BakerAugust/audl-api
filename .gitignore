@@ -1,3 +1,5 @@
 *.env
 *.mysql-data
 
+*.ipynb_checkpoints
+*.pyc
