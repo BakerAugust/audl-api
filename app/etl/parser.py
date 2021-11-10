@@ -34,7 +34,8 @@ def parse_roster(engine: Engine, roster_list: List[dict], team_id: str) -> str:
     roster = Roster(id=roster_id, team_id=team_id)
     session.add(roster)
     session.commit()
-    on_roster_list = []
+    # Using a dict to workaround some erroneous duplicates from the source
+    on_roster_dict = {}
     players_to_add = []
 
     for rostered_player in roster_list:
@@ -58,22 +59,20 @@ def parse_roster(engine: Engine, roster_list: List[dict], team_id: str) -> str:
                 }
             )
         jersey_number = rostered_player["jersey_number"]
-        on_roster_list.append(
-            {
-                "roster_id": roster_id,
-                "player_id": player_id,
-                "audl_id": rostered_player["id"],
-                "jersey_number": jersey_number if jersey_number else None,
-                "active": rostered_player["active"],
-            }
-        )
+        on_roster_dict[player_id] = {
+            "roster_id": roster_id,
+            "player_id": player_id,
+            "audl_id": rostered_player["id"],
+            "jersey_number": jersey_number if jersey_number else None,
+            "active": rostered_player["active"],
+        }
 
     if players_to_add:
         stmt = insert(Player).values(players_to_add)
         session.execute(stmt)
         session.commit()
 
-    stmt = insert(OnRoster).values(on_roster_list)
+    stmt = insert(OnRoster).values(list(on_roster_dict.values()))
     session.execute(stmt)
     session.commit()
 
@@ -127,8 +126,6 @@ def parse_event(
 
 def parse_load_game(engine: Engine, response: Response) -> None:
     """ """
-    ## TODO check if the game has already been loaded
-
     ## Get list of all players
     gamejson = json.loads(response.content.decode())
     game_id = uuid16()
@@ -141,7 +138,7 @@ def parse_load_game(engine: Engine, response: Response) -> None:
     home_roster_id = parse_roster(engine, gamejson["rostersHome"], home_team_id)
     away_roster_id = parse_roster(engine, gamejson["rostersAway"], away_team_id)
 
-    game = Game(  # TODO add game str
+    game = Game(
         id=game_id,
         audl_id=gamejson["game"]["id"],
         home_roster_id=home_roster_id,
