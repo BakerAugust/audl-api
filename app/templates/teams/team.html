@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+
+<body>
+    <div class="container is-fluid">
+        <h1 class='title is-1'>{{team.city + ' ' + team.name}}</h1>
+        <nav class="level">
+            <div class="level-item has-text-centered">
+                <div>
+                    <p class="heading has-text-success">Wins</p>
+                    <p class="title">{{season_summary.wins}}</p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered">
+                <div>
+                    <p class="heading has-text-danger">Losses</p>
+                    <p class="title">{{season_summary.losses}}</p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered">
+                <div>
+                    <p class="heading">Ties</p>
+                    <p class="title">{{season_summary.ties}}</p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered">
+                <div>
+                    <p class="heading">Avg. Points Scored per Game</p>
+                    <p class="title">{{season_summary.avg_points_scored}}</p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered">
+                <div>
+                    <p class="heading">Avg. Points Allowed per Game</p>
+                    <p class="title">{{season_summary.avg_points_allowed}}</p>
+                </div>
+            </div>
+        </nav>
+        <h2 class="title is-2">Record</h2>
+        <table class="table is-striped">
+            <thead>
+                <tr>
+                    <th>Game</th>
+                    <th>Home Score</th>
+                    <th>Away Score</th>
+                    <th>Game ID</th>
+                </tr>
+            </thead>
+            {% for g in games %}
+            <tr>
+                <td>{{ g.ext_game_id }}</td>
+                <td>{{ g.home_score }}</td>
+                <td>{{ g.away_score }}</td>
+                <td>{{ g.id }} </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+{% endblock %}

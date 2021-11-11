@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+
+<body>
+    <div class="container is-fluid">
+        <h1>{{ team_name + ' Games' }}</h1>
+        <table class="table is-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Timezone</th>
+                    <th>Home Team</th>
+                    <th>Away Team</th>
+                    <th>Home Score</th>
+                    <th>Away Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for game in games %}
+                <tr>
+                    <td>{{ game.start_timestamp }}</td>
+                    <td>{{ game.start_timezone }}</td>
+                    <td>{{ game.home_team.city + ' ' + game.home_team.name }}</td>
+                    <td>{{ game.away_team.city + ' ' + game.away_team.name }}</td>
+                    <td>{{ game.home_score }}</td>
+                    <td>{{ game.away_score }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+{% endblock %}
