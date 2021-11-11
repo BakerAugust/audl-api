@@ -108,8 +108,3 @@ async def view_games(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse(
         "games/view_all.html", {"request": request, "games": games, "team_name": "All"}
     )
-
-
-# @app.get("/games", response_class=List[Game])
-# async def games(request: Request, db: Session = Depends(get_db)):
-#     games_orm = db.query(GameORM).all()
