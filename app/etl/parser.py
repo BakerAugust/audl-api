@@ -6,41 +6,34 @@ from datetime import datetime
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import Session
 from sqlalchemy import insert
-from typing import List
+from typing import List, Tuple
 from requests import Response
 from app.sql.models import (
-    Game,
-    Player,
-    Roster,
-    Team,
-    OnRoster,
-    Event,
+    GameORM,
+    PlayerORM,
+    RosterORM,
+    TeamORM,
+    EventORM,
     uuid16,
 )
 from app.etl.event_types import EVENT_TYPES, EVENT_TYPES_GENERAL
 
 
-class UnknownEventException(Exception):
-    pass
-
-
-def parse_roster(engine: Engine, roster_list: List[dict], team_id: str) -> str:
+def parse_roster(
+    engine: Engine, roster_list: List[dict], team_id: str
+) -> Tuple[list, dict]:
     """
     Parses add loads roster and on_roster, adding players to the db if they are not
     already there. Returns roster_id.
     """
     session = Session(engine)
-    roster_id = uuid16()
-    roster = Roster(id=roster_id, team_id=team_id)
-    session.add(roster)
-    session.commit()
     # Using a dict to workaround some erroneous duplicates from the source
-    on_roster_dict = {}
+    roster_dict = {}
     players_to_add = []
 
     for rostered_player in roster_list:
         player = (
-            session.query(Player)
+            session.query(PlayerORM)
             .filter_by(audl_id=rostered_player["player_id"])
             .first()
         )
@@ -59,24 +52,15 @@ def parse_roster(engine: Engine, roster_list: List[dict], team_id: str) -> str:
                 }
             )
         jersey_number = rostered_player["jersey_number"]
-        on_roster_dict[player_id] = {
-            "roster_id": roster_id,
+        roster_dict[player_id] = {
             "player_id": player_id,
+            "team_id": team_id,
             "audl_id": rostered_player["id"],
             "jersey_number": jersey_number if jersey_number else None,
             "active": rostered_player["active"],
         }
 
-    if players_to_add:
-        stmt = insert(Player).values(players_to_add)
-        session.execute(stmt)
-        session.commit()
-
-    stmt = insert(OnRoster).values(list(on_roster_dict.values()))
-    session.execute(stmt)
-    session.commit()
-
-    return roster_id
+    return players_to_add, roster_dict
 
 
 def parse_team(engine: Engine, team_dict: dict) -> str:
@@ -85,12 +69,12 @@ def parse_team(engine: Engine, team_dict: dict) -> str:
     creates a new entry for the team and returns the newly-created id.
     """
     session = Session(engine)
-    team = session.query(Team).filter_by(audl_id=team_dict["team_id"]).first()
+    team = session.query(TeamORM).filter_by(audl_id=team_dict["team_id"]).first()
     if bool(team):
         return team.id
     else:
         team_id = uuid16()
-        team = Team(
+        team = TeamORM(
             id=team_id,
             audl_id=team_dict["team_id"],
             division=team_dict["division_id"],
@@ -105,11 +89,11 @@ def parse_team(engine: Engine, team_dict: dict) -> str:
 
 def parse_event(
     event: dict, game_id: str, team_id: str, roster_lookup: dict, event_sequence: int
-) -> Event:
+) -> EventORM:
     """
     Event parser for non-line events.
     """
-    e = Event(
+    e = EventORM(
         id=uuid16(),
         coordinate_x=event.get("x"),
         coordinate_y=event.get("y"),
@@ -134,15 +118,20 @@ def parse_load_game(engine: Engine, response: Response) -> None:
     home_team_id = parse_team(engine, gamejson["game"]["team_season_home"])
     away_team_id = parse_team(engine, gamejson["game"]["team_season_away"])
 
-    # Need to pass a game_id in here too
-    home_roster_id = parse_roster(engine, gamejson["rostersHome"], home_team_id)
-    away_roster_id = parse_roster(engine, gamejson["rostersAway"], away_team_id)
+    home_players_to_add, home_roster_dict = parse_roster(
+        engine, gamejson["rostersHome"], home_team_id
+    )
+    away_players_to_add, away_roster_dict = parse_roster(
+        engine, gamejson["rostersAway"], away_team_id
+    )
 
-    game = Game(
+    players_to_add = home_players_to_add + away_players_to_add
+
+    game = GameORM(
         id=game_id,
         audl_id=gamejson["game"]["id"],
-        home_roster_id=home_roster_id,
-        away_roster_id=away_roster_id,
+        home_team_id=home_team_id,
+        away_team_id=away_team_id,
         home_score=gamejson["game"]["score_home"],
         away_score=gamejson["game"]["score_away"],
         start_timestamp=datetime.fromisoformat(
@@ -152,26 +141,26 @@ def parse_load_game(engine: Engine, response: Response) -> None:
         ext_game_id=gamejson["game"]["ext_game_id"],
     )
 
+    home_roster_lookup = {}
+    for player_id, vdict in home_roster_dict.items():
+        home_roster_lookup[vdict["audl_id"]] = player_id
     # Build a roster lookup for audl_rostered_player_id --> player.id
-    session = Session(engine)
-    roster_lookup = {}
-    rostered_players = (
-        session.query(OnRoster)
-        .filter(OnRoster.roster_id.in_([home_roster_id, away_roster_id]))
-        .all()
-    )
-    for player in rostered_players:
-        roster_lookup[player.audl_id] = player.player_id
-
     event_sequence = 0
     for e in json.loads(gamejson["tsgHome"]["events"]):
         game.events.append(
             parse_event(
-                e, game_id, home_team_id, roster_lookup, event_sequence=event_sequence
+                e,
+                game_id,
+                home_team_id,
+                home_roster_lookup,
+                event_sequence=event_sequence,
             )
         )
         event_sequence += 1
 
+    away_roster_lookup = {}
+    for player_id, vdict in away_roster_dict.items():
+        away_roster_lookup[vdict["audl_id"]] = player_id
     event_sequence = 0
     for e in json.loads(gamejson["tsgAway"]["events"]):
         game.events.append(
@@ -179,14 +168,28 @@ def parse_load_game(engine: Engine, response: Response) -> None:
                 e,
                 game_id,
                 away_team_id,
-                roster_lookup,
+                away_roster_lookup,
                 event_sequence=event_sequence,
             )
         )
         event_sequence += 1
 
-    session = Session(engine)
+    print("Loading data to db")
+    with Session(engine) as session:
+        # Load players
+        if players_to_add:
+            stmt = insert(PlayerORM).values(players_to_add)
+            session.execute(stmt)
+            session.commit()
 
-    print("Loading game data")
-    session.add(game)
-    session.commit()
+        # Load game
+        session.add(game)
+        session.commit()
+
+        # Load roster
+        for roster_dict in [home_roster_dict, away_roster_dict]:
+            for vdict in roster_dict.values():
+                vdict["game_id"] = game_id  # Add game_id attrb
+            stmt = insert(RosterORM).values(list(roster_dict.values()))
+            session.execute(stmt)
+            session.commit()

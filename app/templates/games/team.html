@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+
+<body>
+    <div class="container is-fluid">
+        <h1>Games</h1>
+        <table class="table is-striped">
+            <thead>
+                <tr>
+                    <th>Game</th>
+                    <th>Home Score</th>
+                    <th>Away Score</th>
+                    <th>Game Details</th>
+                </tr>
+            </thead>
+            {% for g in games %}
+            <tr>
+                <td>{{ g.ext_game_id }}</td>
+                <td>{{ g.home_score }}</td>
+                <td>{{ g.away_score }}</td>
+                <td>{{ g.id }} </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+{% endblock %}

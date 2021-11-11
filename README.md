@@ -13,6 +13,10 @@ As such, knitting together these two independent sources presents a challenge in
 ## Running MySQL database locally
 Simply run `docker compose up` from the project root.
 
+## Credits
+Thanks to @JohnLithio's [AUDL-Advanced-Stats](https://github.com/JohnLithio/AUDL-Advanced-Stats/blob/main/audl_advanced_stats/constants.py) and @JWylie43's [AUDLStats](https://github.cm/JWylie43/AUDLStats). 
+
+
 ## Resources 
 - https://htmx.org/examples/click-to-edit/
 - https://medium.com/swlh/python-with-docker-compose-fastapi-part-2-88e164d6ef86   

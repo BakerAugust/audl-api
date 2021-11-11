@@ -7,7 +7,7 @@ import pandas as pd
 from sqlalchemy.orm.session import Session
 from app.etl.parser import parse_load_game
 from app.sql.utils import make_engine
-from app.sql.models import Game
+from app.sql.models import GameORM
 
 
 if __name__ == "__main__":
@@ -20,7 +20,11 @@ if __name__ == "__main__":
         ext_game_id = game_url[0].split("/")[-1]
         print(f"Checking for game {ext_game_id}")
         # Check if game is already loaded
-        if not session.query(Game).filter(Game.ext_game_id == ext_game_id).first():
+        if (
+            not session.query(GameORM)
+            .filter(GameORM.ext_game_id == ext_game_id)
+            .first()
+        ):
             print(f"Parsing and loading data.")
             response = requests.get(game_url[0])
             try:

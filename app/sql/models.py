@@ -2,11 +2,12 @@ import uuid
 import json
 
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import ForeignKeyConstraint
+from typing import List
 
 
 from sqlalchemy.sql.sqltypes import JSON, Boolean, DateTime, Float
@@ -21,7 +22,7 @@ def uuid16() -> str:
     return uuid.uuid4().hex[:16]
 
 
-class Team(Base):
+class TeamORM(Base):
     __tablename__ = "team"
     id = Column(String(16), primary_key=True, default=uuid16())
     audl_id = Column(Integer, nullable=False)
@@ -47,44 +48,66 @@ class Team(Base):
         self.abbreviation = abbreviation
 
 
-class Roster(Base):
+class RosterORM(Base):
     __tablename__ = "roster"
-    __table_args__ = (ForeignKeyConstraint(["team_id"], ["team.id"]),)
+    __table_args__ = (
+        ForeignKeyConstraint(["game_id"], ["game.id"]),
+        ForeignKeyConstraint(["player_id"], ["player.id"]),
+        ForeignKeyConstraint(["team_id"], ["team.id"]),
+    )
 
-    id = Column(String(16), primary_key=True, default=uuid16())
-    team_id = Column(String(16))
+    game_id = Column(String(16), nullable=False, primary_key=True)
+    player_id = Column(String(16), nullable=False, primary_key=True)
+    team_id = Column(String(16), nullable=False, primary_key=True)
+    audl_id = Column(Integer, nullable=False)
+    jersey_number = Column(Integer, nullable=True, default=None)
+    active = Column(Boolean)
 
-    def __init__(self, team_id: str, id: Optional[str] = None):
-        self.id = id
+    def __init__(
+        self,
+        game_id: str,
+        team_id: str,
+        player_id: str,
+        audl_id: int,
+        jersey_number: int,
+        active: bool,
+    ):
+        self.game_id = game_id
         self.team_id = team_id
+        self.player_id = player_id
+        self.audl_id = audl_id
+        self.jersey_number = jersey_number
+        self.active = active
 
 
-class Game(Base):
+class GameORM(Base):
     __tablename__ = "game"
     __table_args__ = (
-        ForeignKeyConstraint(["home_roster_id"], ["roster.id"]),
-        ForeignKeyConstraint(["away_roster_id"], ["roster.id"]),
+        ForeignKeyConstraint(["home_team_id"], ["team.id"]),
+        ForeignKeyConstraint(["away_team_id"], ["team.id"]),
     )
 
     id = Column(String(16), primary_key=True, default=uuid16())
     audl_id = Column(Integer)
     ext_game_id = Column(String(18), nullable=False)
-    home_roster_id = Column(String(16), nullable=False)
-    away_roster_id = Column(String(16), nullable=False)
+    home_team_id = Column(String(16), nullable=False)
+    away_team_id = Column(String(16), nullable=False)
     home_score = Column(Integer)
     away_score = Column(Integer)
     start_timestamp = Column(DateTime)
     start_timezone = Column(String(3))
     upload_timestamp = Column(DateTime, default=datetime.now())
 
-    events = relationship("Event", back_populates="game")
+    events = relationship("EventORM", back_populates="game")
+    home_team = relationship("TeamORM", primaryjoin="GameORM.home_team_id==TeamORM.id")
+    away_team = relationship("TeamORM", primaryjoin="GameORM.away_team_id==TeamORM.id")
 
     def __init__(
         self,
         audl_id: str,
         ext_game_id: str,
-        home_roster_id: str,
-        away_roster_id: str,
+        home_team_id: str,
+        away_team_id: str,
         home_score: int,
         away_score: int,
         start_timestamp: datetime,
@@ -95,8 +118,8 @@ class Game(Base):
         self.id = id
         self.audl_id = audl_id
         self.ext_game_id = ext_game_id
-        self.home_roster_id = home_roster_id
-        self.away_roster_id = away_roster_id
+        self.home_team_id = home_team_id
+        self.away_team_id = away_team_id
         self.home_score = home_score
         self.away_score = away_score
         self.start_timestamp = start_timestamp
@@ -104,7 +127,7 @@ class Game(Base):
         self.events = events
 
 
-class Player(Base):
+class PlayerORM(Base):
     __tablename__ = "player"
     id = Column(String(16), primary_key=True, default=uuid16())
     audl_id = Column(Integer)
@@ -117,7 +140,7 @@ class Player(Base):
         self.last_name = last_name
 
 
-class Event(Base):
+class EventORM(Base):
     __tablename__ = "event"
     __table_args__ = (
         ForeignKeyConstraint(["player_id"], ["player.id"]),
@@ -135,7 +158,7 @@ class Event(Base):
     team_id = Column(String(16), nullable=False)
     game_id = Column(String(16), ForeignKey("game.id"), nullable=False)
 
-    game = relationship("Game", back_populates="events")
+    game = relationship("GameORM", back_populates="events")
 
     def __init__(
         self,
@@ -158,31 +181,3 @@ class Event(Base):
         self.event_type = event_type
         self.event_data_json = json.dumps(event_data_json)
         self.sequence = sequence
-
-
-class OnRoster(Base):
-    __tablename__ = "on_roster"
-    __table_args__ = (
-        ForeignKeyConstraint(["roster_id"], ["roster.id"]),
-        ForeignKeyConstraint(["player_id"], ["player.id"]),
-    )
-
-    roster_id = Column(String(16), nullable=False, primary_key=True)
-    player_id = Column(String(16), nullable=False, primary_key=True)
-    audl_id = Column(Integer, nullable=False)
-    jersey_number = Column(Integer, nullable=True, default=None)
-    active = Column(Boolean)
-
-    def __init__(
-        self,
-        roster_id: str,
-        player_id: str,
-        audl_id: int,
-        jersey_number: int,
-        active: bool,
-    ):
-        self.roster_id = roster_id
-        self.player_id = player_id
-        self.audl_id = audl_id
-        self.jersey_number = jersey_number
-        self.active = active

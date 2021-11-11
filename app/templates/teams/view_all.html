@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+
+<body>
+    <div class="container is-fluid">
+        <h1 class='title is-1'>Teams</h1>
+        <table class="table is-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>City</th>
+                    <th>Team Page</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for team in teams %}
+                <tr>
+                    <td>{{ team.name }}</td>
+                    <td>{{ team.city }}</td>
+                    <td><a href={{ "/teams/" +team.id+"/view"}} style="display:block;">view team page</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+{% endblock %}

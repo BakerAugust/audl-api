@@ -1,17 +1,11 @@
-from sqlalchemy import create_engine
-import os
-from dotenv import load_dotenv
-from urllib.parse import quote_plus
-
+from sqlalchemy.sql.expression import or_, select
+from app.sql.models import GameORM, TeamORM
+from app.sql.utils import make_engine
+from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import or_
 
 if __name__ == "__main__":
-    load_dotenv()
-    host = os.getenv("MYSQL_HOST")
-    user = os.getenv("MYSQL_ADMIN_USER")
-    pw = quote_plus(os.getenv("MYSQL_ADMIN_PW"))
-    db = os.getenv("MYSQL_DATABASE")
-    engine = create_engine(f"mysql+pymysql://{user}:{pw}@{host}/audl", echo=True)
-
+    engine = make_engine()
     conn = engine.connect()
     sql = """
     show databases
