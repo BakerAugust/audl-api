@@ -5,50 +5,29 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
 <script src="/static/js/htmx.js"></script>
 
-<article class="container is-widescreen">
-    <div class="notification is-warning">
-        Hey! Just a heads up that we are experiencing some high latency with our hosting platform. Everything is still
-        working properly, it just might take a bit longer than expected. Thanks for your patience! 🛠
-    </div>
-    </div>
-
-    <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+<div class="container">
+    <nav class="navbar" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
             <a class="navbar-item" href="/">
                 <img src="/static/Frame 1.png" width="112" height="28">
             </a>
 
-            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="true"
-                data-target="navbarBasicExample">
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
+            <a class="navbar-item" href="/">
+                Home
             </a>
-        </div>
 
-        <div id="navbarBasicExample" class="navbar-menu">
-            <div class="navbar-start">
-                <a class="navbar-item" href="/">
-                    Home
+            <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link">
+                    Explore
                 </a>
 
-                <a class="navbar-item" href="/docs#/">
-                    Documentation
-                </a>
-
-                <div class="navbar-item has-dropdown is-hoverable">
-                    <a class="navbar-link">
-                        Explore
+                <div class="navbar-dropdown">
+                    <a class="navbar-item" href="/teams/view">
+                        Teams
                     </a>
-
-                    <div class="navbar-dropdown">
-                        <a class="navbar-item" href="/teams/view">
-                            Teams
-                        </a>
-                        <a class="navbar-item" href="/games/view">
-                            Games
-                        </a>
-                    </div>
+                    <a class="navbar-item" href="/games/view">
+                        Games
+                    </a>
                 </div>
             </div>
 
@@ -65,15 +44,16 @@
     </nav>
     {% block title %}
     {% endblock %}
+</div>
 
-    <head>
+<head>
 
-    </head>
+</head>
 
-    <body>
-        {% block content %}
-        {% endblock %}
-    </body>
-    </body>
+<body>
+    {% block content %}
+    {% endblock %}
+</body>
+</body>
 
 </html>

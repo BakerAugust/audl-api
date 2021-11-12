@@ -1,4 +1,4 @@
-# audl-api
+# [ultidata](https://ultidata-dfj8c.ondigitalocean.app/)
 
 ## About the data
 
@@ -9,9 +9,6 @@ For each game, a record of events is provided by both the home and away team. Ac
 In some instances these independent records of events don't even agree on the number of points played. 
 
 As such, knitting together these two independent sources presents a challenge in creating a single sequence-aware record of events for each point.
-
-## Running locally
-Simply run `docker compose up` from the project root.
 
 ## Credits
 Thanks to @JohnLithio's [AUDL-Advanced-Stats](https://github.com/JohnLithio/AUDL-Advanced-Stats/blob/main/audl_advanced_stats/constants.py) and @JWylie43's [AUDLStats](https://github.cm/JWylie43/AUDLStats) for making the data accessible.
