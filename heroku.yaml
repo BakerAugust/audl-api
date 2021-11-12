@@ -1,0 +1,9 @@
+build:
+ docker:
+   web: ./Dockerfile
+ config:
+   REQUIREMENTS_FILENAME: heroku.yml
+release:
+ image: web
+run:
+ web: uvicorn app.main:app --reload
