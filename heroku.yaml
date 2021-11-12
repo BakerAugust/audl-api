@@ -1,0 +1,10 @@
+
+build:
+  docker:
+    web: /code/Dockerfile
+  config:
+   REQUIREMENTS_FILENAME: heroku.yml
+release:
+  image: web
+run:
+  web: gunicorn -b $PORT -k uvicorn.workers.UvicornWorker app.main:app
