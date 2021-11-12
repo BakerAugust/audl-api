@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import insert
 from typing import List, Tuple
 from requests import Response
-from app.sql.models import (
+from sql.models import (
     GameORM,
     PlayerORM,
     RosterORM,
@@ -16,7 +16,7 @@ from app.sql.models import (
     EventORM,
     uuid16,
 )
-from app.etl.event_types import EVENT_TYPES, EVENT_TYPES_GENERAL
+from etl.event_types import EVENT_TYPES, EVENT_TYPES_GENERAL
 
 
 def parse_roster(

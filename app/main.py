@@ -10,15 +10,15 @@ from sqlalchemy import or_
 
 from typing import List
 
-from app.schema.schema import Game, Team
-from app.sql.utils import make_engine
-from app.sql.models import TeamORM, GameORM
-from app.views.season import summarize_season
+from schema.schema import Game, Team
+from sql.utils import make_engine
+from sql.models import TeamORM, GameORM
+from views.season import summarize_season
 
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
-templates = Jinja2Templates(directory="app/templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 engine = make_engine(echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

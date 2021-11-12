@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from pydantic import BaseModel, Json
 from typing import List, Optional
-from app.sql.models import Base
+from sql.models import Base
 
 
 class Event(BaseModel):

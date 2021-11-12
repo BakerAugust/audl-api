@@ -5,9 +5,9 @@ Identify game URLs not already loaded and load them into mysql db.
 import requests
 import pandas as pd
 from sqlalchemy.orm.session import Session
-from app.etl.parser import parse_load_game
-from app.sql.utils import make_engine
-from app.sql.models import GameORM
+from etl.parser import parse_load_game
+from sql.utils import make_engine
+from sql.models import GameORM
 
 
 if __name__ == "__main__":
@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     session = Session(engine)
 
-    game_urls = pd.read_csv("app/etl/urls_2021.csv", skiprows=0)
+    game_urls = pd.read_csv("etl/urls_2021.csv", skiprows=0)
     for game_url in game_urls.values:
         ext_game_id = game_url[0].split("/")[-1]
         print(f"Checking for game {ext_game_id}")
