@@ -1,5 +1,5 @@
 from pydantic.main import BaseModel
-from app.schema.schema import Team, Game
+from schema.schema import Team, Game
 from pydantic import BaseModel
 from typing import List
 
