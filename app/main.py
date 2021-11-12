@@ -7,9 +7,6 @@ from sqlalchemy.orm.session import sessionmaker
 from sqlalchemy.sql.expression import select
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import or_
-
-from typing import List
-
 from schema.schema import Game, Team
 from sql.utils import make_engine
 from sql.models import TeamORM, GameORM
@@ -65,11 +62,6 @@ async def view_teams(request: Request, team_id: str, db: Session = Depends(get_d
             "season_summary": summarize_season(team, games),
         },
     )
-
-
-@app.get("/teams/{team_id}/view", response_class=HTMLResponse)
-async def view_team(request: Request, team_id: str, db: Session = Depends(get_db)):
-    return
 
 
 @app.get("/games/{team_id}/view", response_class=HTMLResponse)
