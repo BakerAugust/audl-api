@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
 <script src="/static/js/htmx.js"></script>
 
-<div class="container">
+<div class="container is-fluid">
     <nav class="navbar" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
             <a class="navbar-item" href="/">
@@ -42,9 +42,11 @@
             </div>
         </div>
     </nav>
-    {% block title %}
-    {% endblock %}
+
 </div>
+
+{% block title %}
+{% endblock %}
 
 <head>
 
