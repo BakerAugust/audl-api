@@ -48,6 +48,7 @@ class Roster(BaseModel):
     audl_id: int
     jersey_number: int
     active: bool
+    player: Player
 
     class Config:
         orm_mode = True
@@ -71,7 +72,3 @@ class Game(BaseModel):
 
     class Config:
         orm_mode = True
-
-
-class SeasonSummary(BaseModel):
-    team: Team

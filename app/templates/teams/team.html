@@ -47,7 +47,7 @@
                     <th>Game</th>
                     <th>Home Score</th>
                     <th>Away Score</th>
-                    <th>Game ID</th>
+                    <th>Game Page</th>
                 </tr>
             </thead>
             {% for g in games %}
@@ -55,7 +55,7 @@
                 <td>{{ g.ext_game_id }}</td>
                 <td>{{ g.home_score }}</td>
                 <td>{{ g.away_score }}</td>
-                <td>{{ g.id }} </td>
+                <td><a href={{ "/games/" +g.id+"/view"}} style='display:block'>link</a></td>
             </tr>
             {% endfor %}
             </tbody>

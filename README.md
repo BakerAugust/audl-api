@@ -2,16 +2,7 @@
 
 ## About the data
 
-### `event`
-
-For each game, a record of events is provided by both the home and away team. Across these records major events like scores and turnovers overlap while the personel and passing information is typically only present on the record from the team in possesion.
-
-In some instances these independent records of events don't even agree on the number of points played. 
-
-As such, knitting together these two independent sources presents a challenge in creating a single sequence-aware record of events for each point.
-
-## Credits
-Thanks to @JohnLithio's [AUDL-Advanced-Stats](https://github.com/JohnLithio/AUDL-Advanced-Stats/blob/main/audl_advanced_stats/constants.py) and @JWylie43's [AUDLStats](https://github.cm/JWylie43/AUDLStats) for making the data accessible.
+The data are loaded through a manually-triggered script `etl.batch_load.py`. The script looks at url endpoints from [AUDL-Advanced-Stats](https://github.com/JohnLithio/AUDL-Advanced-Stats/blob/main/audl_advanced_stats/constants.py) identified by a script from [AUDLStats](https://github.cm/JWylie43/AUDLStats) to get a json blob for each game in 2021 that has not already been loaded. The resulting json blobs are parsed and normalized into relational models then loaded into the database.
 
 
 ## Useful References 

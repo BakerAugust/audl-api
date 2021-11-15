@@ -63,6 +63,8 @@ class RosterORM(Base):
     jersey_number = Column(Integer, nullable=True, default=None)
     active = Column(Boolean)
 
+    player = relationship("PlayerORM")
+
     def __init__(
         self,
         game_id: str,
