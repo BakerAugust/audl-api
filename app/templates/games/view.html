@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+
+<body>
+    <div class="container is-fluid">
+        <h1 class='title is-2'>{{ game.ext_game_id }}</h1>
+        <nav class="level">
+            <div class="level-item has-text-centered">
+                <div>
+                    <p class="heading">{{game.home_team.city + ' ' +game.home_team.name}}</p>
+                    <p class="title">{{game.home_score}}</p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered">
+                <div>
+                    <p class="heading">{{game.away_team.city + ' ' +game.away_team.name}}</p>
+                    <p class="title">{{game.away_score}}</p>
+                </div>
+            </div>
+        </nav>
+
+        <div class="columns">
+            <div class="column">
+                <h2 class='title is-3'>{{game.home_team.name}} roster</h2>
+                <table class="table is-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Jersey number</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in home_roster %}
+                        <tr>
+                            <td><a href={{"/players/"+p.player_id+"/view"}}>{{ p.player.first_name + ' ' +
+                                    p.player.last_name
+                                    }}</a>
+                            </td>
+                            <td>{{ p.jersey_number }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="column">
+                <h2 class="title is-3">{{game.away_team.name}} roster</h2>
+                <table class="table is-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Jersey number</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in away_roster %}
+                        <tr>
+                            <td><a href={{"/players/"+p.player_id+"/view"}}>{{ p.player.first_name + ' ' +
+                                    p.player.last_name
+                                    }}</a>
+                            </td>
+                            <td>{{ p.jersey_number }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+{% endblock %}
