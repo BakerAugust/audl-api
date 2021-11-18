@@ -1,4 +1,5 @@
 # [ultidata](https://ultidata-dfj8c.ondigitalocean.app/)
+A sandbox app for playing with Fast-API, MySQL and app deployment.
 
 ## About the data
 
